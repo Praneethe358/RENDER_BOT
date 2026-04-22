@@ -1,20 +1,27 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { Select } from "../components/ui/select";
 import EmptyState from "../components/shared/EmptyState";
 import ErrorState from "../components/shared/ErrorState";
 import LoadingState from "../components/shared/LoadingState";
 import ServiceTable from "../components/shared/ServiceTable";
 import ResponseChart from "../components/shared/ResponseChart";
+import AnalyticsPanel from "../components/shared/AnalyticsPanel";
 import { useServices } from "../hooks/useServices";
 import { useIntervalRefresh } from "../hooks/useIntervalRefresh";
 import { useToast } from "../components/shared/ToastProvider";
+import { useAnalytics } from "../hooks/useAnalytics";
 
 const DashboardPage = () => {
   const { services, loading, error, loadServices, deleteService } = useServices();
   const { pushToast } = useToast();
+  const [selectedServiceId, setSelectedServiceId] = useState("");
+  const { data: analytics, loading: analyticsLoading, error: analyticsError, loadAnalytics } =
+    useAnalytics(selectedServiceId);
 
   useIntervalRefresh(loadServices, 12000);
+  useIntervalRefresh(loadAnalytics, 15000);
 
   const handleDelete = useCallback(
     async (id) => {
@@ -29,6 +36,12 @@ const DashboardPage = () => {
   );
 
   const upCount = services.filter((service) => service.status === "UP").length;
+
+  useEffect(() => {
+    if (!selectedServiceId && services.length > 0) {
+      setSelectedServiceId(services[0]._id);
+    }
+  }, [selectedServiceId, services]);
 
   return (
     <div className="space-y-5">
@@ -65,6 +78,29 @@ const DashboardPage = () => {
         <div className="space-y-5">
           <ServiceTable services={services} onDelete={handleDelete} />
           <ResponseChart services={services} />
+          <Card className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-bold text-brand-primary">Analytics</h3>
+              <p className="text-sm text-[#8d7060]">Uptime trends for a selected service.</p>
+            </div>
+            <div className="w-[220px]">
+              <Select
+                value={selectedServiceId}
+                onChange={(event) => setSelectedServiceId(event.target.value)}
+              >
+                {services.map((service) => (
+                  <option key={service._id} value={service._id}>
+                    {service.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </Card>
+          {analyticsError ? (
+            <ErrorState message={analyticsError} onRetry={loadAnalytics} />
+          ) : (
+            <AnalyticsPanel analytics={analytics} loading={analyticsLoading} />
+          )}
         </div>
       ) : null}
     </div>

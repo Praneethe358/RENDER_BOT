@@ -3,9 +3,11 @@ const axios = require("axios");
 const Service = require("../models/Service");
 const Log = require("../models/Log");
 const logger = require("../utils/logger");
+const { sendAlert } = require("./emailService");
 
 const REQUEST_TIMEOUT_MS = 5000;
 let isRunning = false;
+const activePings = new Set();
 
 const isDue = (service, now) => {
   if (!service.lastPing) {
@@ -29,38 +31,87 @@ const attemptPing = async (service) => {
   return { status: isUp ? "UP" : "DOWN", responseTime };
 };
 
-const pingService = async (service) => {
-  let result = null;
+const pingWithRetries = async (service, maxRetries = 2) => {
+  let attempt = 0;
+  let lastError = null;
+  let lastResult = null;
 
-  try {
-    result = await attemptPing(service);
-    if (result.status === "DOWN") {
-      result = await attemptPing(service);
-    }
-  } catch (error) {
-    logger.warn(`Ping failed for ${service.url}: ${error.message}`);
+  while (attempt <= maxRetries) {
     try {
-      result = await attemptPing(service);
-    } catch (retryError) {
-      logger.warn(`Retry failed for ${service.url}: ${retryError.message}`);
-      result = { status: "DOWN", responseTime: null };
+      lastResult = await attemptPing(service);
+      if (lastResult.status === "UP") {
+        return lastResult;
+      }
+
+      attempt += 1;
+      if (attempt <= maxRetries) {
+        logger.warn(`Ping returned DOWN for ${service.url}, retrying (${attempt}/${maxRetries})`);
+      }
+    } catch (error) {
+      lastError = error;
+      attempt += 1;
+      logger.warn(`Ping attempt ${attempt} failed for ${service.url}: ${error.message}`);
     }
   }
 
-  const { status, responseTime } = result;
-  service.status = status;
-  service.lastPing = new Date();
-  service.responseTime = responseTime;
+  if (lastError) {
+    logger.warn(`All retries failed for ${service.url}: ${lastError.message}`);
+  }
 
-  await Promise.all([
-    service.save(),
-    Log.create({
-      serviceId: service._id,
-      status,
-      responseTime,
-      timestamp: new Date()
-    })
-  ]);
+  return lastResult || { status: "DOWN", responseTime: null };
+};
+
+const pingService = async (service) => {
+  const serviceId = service._id.toString();
+  if (activePings.has(serviceId)) {
+    return;
+  }
+
+  activePings.add(serviceId);
+  const previousStatus = service.status;
+
+  try {
+    const result = await pingWithRetries(service, 2);
+    const { status, responseTime } = result;
+
+    service.status = status;
+    service.lastPing = new Date();
+    service.responseTime = responseTime;
+
+    await Promise.all([
+      service.save(),
+      Log.create({
+        userId: service.userId?._id || service.userId,
+        serviceId: service._id,
+        status,
+        responseTime,
+        timestamp: new Date()
+      })
+    ]);
+
+    if (previousStatus !== status && service.userId?.email) {
+      const subject =
+        status === "DOWN"
+          ? `PulseKeep alert: ${service.name} is DOWN`
+          : `PulseKeep recovery: ${service.name} is UP`;
+      const html = `
+        <p>Hello,</p>
+        <p>Your service <strong>${service.name}</strong> (${service.url}) is now <strong>${status}</strong>.</p>
+        <p>Response time: ${responseTime ?? "-"} ms</p>
+        <p>PulseKeep will continue monitoring and alert on changes.</p>
+      `;
+
+      await sendAlert({
+        to: service.userId.email,
+        subject,
+        html
+      });
+    }
+  } catch (error) {
+    logger.error(`Ping workflow error for ${service.url}: ${error.message}`);
+  } finally {
+    activePings.delete(serviceId);
+  }
 };
 
 const startPinger = () => {
@@ -73,7 +124,7 @@ const startPinger = () => {
     const now = new Date();
 
     try {
-      const services = await Service.find();
+      const services = await Service.find().populate("userId", "email");
       const dueServices = services.filter((service) => isDue(service, now));
 
       if (dueServices.length > 0) {
