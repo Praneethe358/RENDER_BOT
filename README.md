@@ -1,11 +1,10 @@
 # PulseKeep
 
-PulseKeep is a decentralized uptime monitoring and keep-alive platform built for teams that want reliable visibility into service health. It provides secure multi-tenant monitoring, scheduled pinging, analytics, and alerting with a clean SaaS-grade dashboard.
+PulseKeep is a decentralized uptime monitoring and keep-alive platform built for teams that want reliable visibility into service health. It provides scheduled pinging, analytics, and alerting with a clean SaaS-grade dashboard.
 
 ## Features
 
-- JWT-based authentication (register/login)
-- Multi-user service isolation
+- Scheduled ping engine with retry logic
 - Scheduled ping engine with retry logic
 - Uptime logs and analytics
 - Email alerts on downtime and recovery
@@ -14,7 +13,7 @@ PulseKeep is a decentralized uptime monitoring and keep-alive platform built for
 
 ## Screenshots
 
-> Add screenshots of the dashboard, analytics, and auth pages here.
+> Add screenshots of the dashboard and analytics pages here.
 
 ## Tech Stack
 
@@ -43,7 +42,6 @@ npm run dev
 Required env values:
 
 - `MONGODB_URI`
-- `JWT_SECRET`
 - Email settings if you want alerts
 
 ### 2) Frontend
@@ -67,12 +65,6 @@ The API runs on `http://localhost:5000` and MongoDB runs on `mongodb://localhost
 
 ## API Reference
 
-### Auth
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-
 ### Services
 
 - `GET /api/services`
@@ -86,8 +78,6 @@ The API runs on `http://localhost:5000` and MongoDB runs on `mongodb://localhost
 ### Analytics
 
 - `GET /api/analytics/:serviceId`
-
-All non-auth endpoints require `Authorization: Bearer <token>`.
 
 ## Analytics
 

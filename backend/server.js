@@ -5,7 +5,6 @@ const cors = require("cors");
 const connectDb = require("./config/db");
 const serviceRoutes = require("./routes/serviceRoutes");
 const healthRoutes = require("./routes/healthRoutes");
-const authRoutes = require("./routes/authRoutes");
 const logRoutes = require("./routes/logRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const errorHandler = require("./middleware/errorHandler");
@@ -19,7 +18,6 @@ app.use(express.json());
 app.use(cors());
 app.use(rateLimiter);
 
-app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/analytics", analyticsRoutes);
