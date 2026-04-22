@@ -2,7 +2,7 @@ const Log = require("../models/Log");
 const asyncHandler = require("../utils/asyncHandler");
 
 const getLogs = asyncHandler(async (req, res) => {
-  const logs = await Log.find({ userId: req.user.id })
+  const logs = await Log.find()
     .populate("serviceId", "name")
     .sort({ timestamp: -1 })
     .limit(500);

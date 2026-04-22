@@ -4,13 +4,13 @@ const asyncHandler = require("../utils/asyncHandler");
 
 const getServiceAnalytics = asyncHandler(async (req, res) => {
   const { serviceId } = req.params;
-  const service = await Service.findOne({ _id: serviceId, userId: req.user.id });
+  const service = await Service.findById(serviceId);
 
   if (!service) {
     return res.status(404).json({ message: "Service not found" });
   }
 
-  const logs = await Log.find({ serviceId, userId: req.user.id })
+  const logs = await Log.find({ serviceId })
     .sort({ timestamp: -1 })
     .limit(120);
 

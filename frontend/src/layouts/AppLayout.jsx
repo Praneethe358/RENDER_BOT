@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { LayoutDashboard, ListPlus, Logs, Menu, X } from "lucide-react";
-import { useAuth } from "../hooks/useAuth.jsx";
-import { Button } from "../components/ui/button";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -12,7 +10,6 @@ const navItems = [
 
 const AppLayout = ({ children }) => {
   const [open, setOpen] = useState(false);
-  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -70,23 +67,13 @@ const AppLayout = ({ children }) => {
               <h2 className="text-lg font-bold text-brand-primary">Operations Dashboard</h2>
               <p className="text-xs text-[#997c6d]">Observe health, latency, and service stability</p>
             </div>
-            <div className="flex items-center gap-3">
-              {user?.email ? (
-                <span className="hidden text-xs font-semibold text-[#8b6f60] md:inline">
-                  {user.email}
-                </span>
-              ) : null}
-              <Button variant="secondary" size="sm" onClick={logout}>
-                Sign out
-              </Button>
-              <button
-                onClick={() => setOpen(true)}
-                className="rounded-xl border border-[#eadfd7] bg-brand-accent p-2 text-brand-primary lg:hidden"
-                aria-label="Open sidebar"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-            </div>
+            <button
+              onClick={() => setOpen(true)}
+              className="rounded-xl border border-[#eadfd7] bg-brand-accent p-2 text-brand-primary lg:hidden"
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
           </header>
           <section className="page-enter">{children}</section>
         </main>
