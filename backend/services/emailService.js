@@ -26,7 +26,7 @@ const sendAlert = async ({ to, subject, html }) => {
     return;
   }
 
-  const from = process.env.EMAIL_FROM || "PulseKeep <no-reply@pulsekeep.local>";
+  const from = process.env.EMAIL_FROM || "StayLive <no-reply@staylive.local>";
 
   await transport.sendMail({
     from,

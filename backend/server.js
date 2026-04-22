@@ -31,7 +31,7 @@ const startServer = async () => {
   await connectDb();
   startPinger();
   app.listen(PORT, () => {
-    logger.info(`PulseKeep backend running on port ${PORT}`);
+    logger.info(`StayLive backend running on port ${PORT}`);
   });
 };
 

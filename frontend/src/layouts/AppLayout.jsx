@@ -21,7 +21,7 @@ const AppLayout = ({ children }) => {
         >
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-brand-primary">PulseKeep</h1>
+              <h1 className="text-2xl font-extrabold tracking-tight text-brand-primary">StayLive</h1>
               <p className="text-xs text-[#9a7f6f]">Uptime command center</p>
             </div>
             <button className="lg:hidden" onClick={() => setOpen(false)}>

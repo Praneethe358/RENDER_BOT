@@ -92,13 +92,13 @@ const pingService = async (service) => {
     if (previousStatus !== status && service.userId?.email) {
       const subject =
         status === "DOWN"
-          ? `PulseKeep alert: ${service.name} is DOWN`
-          : `PulseKeep recovery: ${service.name} is UP`;
+          ? `StayLive alert: ${service.name} is DOWN`
+          : `StayLive recovery: ${service.name} is UP`;
       const html = `
         <p>Hello,</p>
         <p>Your service <strong>${service.name}</strong> (${service.url}) is now <strong>${status}</strong>.</p>
         <p>Response time: ${responseTime ?? "-"} ms</p>
-        <p>PulseKeep will continue monitoring and alert on changes.</p>
+        <p>StayLive will continue monitoring and alert on changes.</p>
       `;
 
       await sendAlert({

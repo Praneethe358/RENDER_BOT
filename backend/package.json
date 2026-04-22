@@ -1,7 +1,7 @@
 {
-  "name": "pulsekeep-backend",
+  "name": "staylive-backend",
   "version": "1.0.0",
-  "description": "PulseKeep backend - decentralized uptime monitoring and keep-alive pinger",
+  "description": "StayLive backend - decentralized uptime monitoring and keep-alive pinger",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

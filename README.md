@@ -1,6 +1,6 @@
-# PulseKeep
+# StayLive
 
-PulseKeep is a decentralized uptime monitoring and keep-alive platform built for teams that want reliable visibility into service health. It provides scheduled pinging, analytics, and alerting with a clean SaaS-grade dashboard.
+StayLive is a decentralized uptime monitoring and keep-alive platform built for teams that want reliable visibility into service health. It provides scheduled pinging, analytics, and alerting with a clean SaaS-grade dashboard.
 
 ## Features
 
@@ -61,7 +61,7 @@ Set `VITE_API_BASE_URL` to your backend URL.
 docker compose up --build
 ```
 
-The API runs on `http://localhost:5000` and MongoDB runs on `mongodb://localhost:27017/pulsekeep`.
+The API runs on `http://localhost:5000` and MongoDB runs on `mongodb://localhost:27017/staylive`.
 
 ## API Reference
 
